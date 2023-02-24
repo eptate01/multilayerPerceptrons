@@ -13,7 +13,7 @@ def derivateSigmoid(x):
 def rand_weights(input_amt, hidden_nodes_amt, input_weights, hidden_weights, in_bias, hidden_bias):
     
     for i in range(input_amt):
-        input_weights.append(list(np.random.uniform(-1,1,3)))
+        input_weights.append(list(np.random.uniform(-1,1,hidden_nodes_amt)))
     for j in range(hidden_nodes_amt):
         hidden_weights.append(np.random.uniform(-1,1))
         in_bias.append(np.random.uniform(-1,1))
@@ -28,10 +28,12 @@ def forward_pass(inputs, input_weights, hidden_weights, in_bias,hidden_bias):
 
 def back_pass(ans, inputs, input_weights, hidden_weights, in_bias, hidden_bias, output, h_in):
     delta0 = (ans-output)*derivateSigmoid(output)
+    print("The ans is: ", ans, "the output is: ", output)
     deltasLayer1 = np.multiply((delta0*np.array(hidden_weights)), list(map(derivateSigmoid,h_in)))
     hidden_weights = hidden_weights+alpha*np.multiply(h_in, delta0)
-    input_weights = input_weights + alpha*np.multiply(inputs, deltasLayer1)
-    print(input_weights)
+    input_weights = input_weights + alpha*np.multiply(np.matrix(inputs).T, np.matrix(deltasLayer1))
+    in_bias = in_bias + alpha*deltasLayer1
+    hidden_bias[0] = hidden_bias[0] + alpha*delta0
 
 
 
