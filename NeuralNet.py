@@ -3,7 +3,8 @@ import math
 import random
 
 alpha = .5
-
+class neuralNet:
+    
 def openFile(fileName): #Opens the file and reads in the data
     with open(fileName, "r") as file:
         data = file.readlines()
@@ -13,7 +14,7 @@ def openFile(fileName): #Opens the file and reads in the data
             data[i] = data[i].split(",")
             data[i][0] = int(data[i][0])
             for x in range(1,len(data[i])):
-                data[i][x] = float(data[i][x])/255
+                data[i][x] = float(data[i][x])/100
     return data
 
 def sigmoid(x):
@@ -37,12 +38,12 @@ def forward_pass(inputs, input_weights, hidden_weights, in_bias,hidden_bias):
     h_out = list(map(sigmoid,h_in))
     raw_out = np.add(np.dot(hidden_weights, h_out),hidden_bias)
     output = sigmoid(raw_out)
-    return output, h_in, raw_out
+    return output, h_in, h_out, raw_out
 
-def back_pass(ans, inputs, input_weights, hidden_weights, in_bias, hidden_bias, output, h_in, raw_out):
-    delta0 = (ans-output)*derivateSigmoid(raw_out)
-    deltasLayer1 = np.multiply((delta0*np.array(hidden_weights)), list(map(derivateSigmoid,h_in)))
-    hidden_weights = hidden_weights+alpha*np.multiply(h_in, delta0)
+def back_pass(ans, inputs, input_weights, hidden_weights, in_bias, hidden_bias, output, h_in, h_out, raw_out):
+    delta0 = (ans-output)*derivateSigmoid(raw_out[0])
+    deltasLayer1 = np.multiply(list(map(derivateSigmoid,h_in)),(delta0*np.array(hidden_weights)))
+    hidden_weights = hidden_weights+alpha*np.multiply(h_out, delta0)
     input_weights = input_weights + alpha*np.multiply(np.matrix(inputs).T, np.matrix(deltasLayer1))
     in_bias = np.add(in_bias, alpha*deltasLayer1)
     hidden_bias[0] = np.add(hidden_bias[0], alpha*delta0)
@@ -55,14 +56,14 @@ def test(inputs, input_weights, hidden_weights, in_bias, hidden_bias):
     return output
 
 def run_update(ans, inputs, input_weights, hidden_weights, in_bias, hidden_bias):
-    output, h_in, raw_out = forward_pass(inputs, input_weights,hidden_weights, in_bias, hidden_bias)
-    back_pass(ans, inputs, input_weights,hidden_weights, in_bias, hidden_bias, output, h_in, raw_out)
+    output, h_in, h_out, raw_out = forward_pass(inputs, input_weights,hidden_weights, in_bias, hidden_bias)
+    back_pass(ans, inputs, input_weights,hidden_weights, in_bias, hidden_bias, output, h_in, h_out, raw_out)
 
 
 #set beginning amounts
 file = "mnist_train_0_1.csv"
 inputList = openFile(file)
-hidden_nodes_amt = 3
+hidden_nodes_amt = 5
 input_amt = 784
 input_weights = []
 hidden_weights = []
