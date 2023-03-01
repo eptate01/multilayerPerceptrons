@@ -20,7 +20,7 @@ def openFile(fileName): #Opens the file and reads in the data
         for i in range(0,size):
             data[i] = data[i].rstrip("\n")
             data[i] = data[i].split(",")
-            data[i][0] = int(data[i][0])
+            data[i][0] = int(data[i][0])/4
             for x in range(1,len(data[i])):
                 data[i][x] = float(data[i][x])/100
     return data
@@ -66,25 +66,21 @@ def test(inputs, network):
     output = sigmoid(raw_out)
     return output
 
-
-
-
 #set beginning amounts
-file = "mnist_train_0_1.csv"
+file = "mnist_train_0_4.csv"
 inputList = openFile(file)
-network = neuralNet(3, 784) #feeds in number of hidden nodes then the number of inputs (not including answer)
+network = neuralNet(15, 784) #feeds in number of hidden nodes then the number of inputs (not including answer)
 rand_weights(network)
 
 #update weights and bias
 for i in inputList:
     run_update(i[0],i[1:], network)
 
-#test the weights you got
-testFile = "mnist_test_0_1.csv"
+testFile = "mnist_test_0_4.csv"
 TestList = openFile(testFile)
 correct = 0
 for i in TestList:
     expected = test(i[1:], network)
-    if (expected > .5 and i[0] == 1) or (expected < .5 and i[0] == 0):
+    if (expected <= .125 and i[0]*4 == 0) or (expected > .125 and expected <= .375 and i[0]*4 == 1) or (expected > .375 and expected <= .625 and i[0]*4 == 2)or (expected > .625 and expected <= .875 and i[0]*4 == 3)or (expected > .875 and i[0]*4 == 4):
         correct += 1
 print(correct/len(TestList))
